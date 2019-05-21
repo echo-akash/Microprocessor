@@ -1,0 +1,130 @@
+code segment
+assume cs:code, ds:code, es:code, ss:code
+
+lcx dw 0   ;VARIABLE
+lcx1 dw 0
+
+ppic_c equ 1eh
+ppia equ 18h
+ppib equ 1ah
+ppic equ 1ch
+
+ORG 1000H
+
+mov al, 80H    ;COMMAND BYTE SET  7 SEGMENT DISPLAY
+out 1FH, al
+
+mov al,80H     ;   COMMAND BYTE SET  MATRIX
+out ppic_c ,al
+
+mov al,0ffh
+out 19h,al
+
+l1: mov si,OFFSET Data2
+    l2:mov al,cs:[si]
+
+    cmp al,00H
+    JE l5
+    out 1bh, al
+
+    mov cx, 0009FH
+      l3: NOP
+        ;;;;;;;;;;;;;;;
+        ;;;;;;;;;;;;;;;
+
+        mov ah,00000001b  ;COLUMN SET
+     ll1:mov di,offset mat   ;FOR 1
+
+     ll2:mov al,cs:[di]
+        out ppib,al
+
+        mov al,ah
+        out ppic,al
+
+         mov lcx, 0000fh
+         llll:
+               dec lcx
+               cmp lcx, 0
+               jne llll
+               je lllldown
+  lllldown:
+
+inc di
+rol ah,1
+jnc ll2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+            NOP
+            loop l3
+
+    inc si
+    jmp l2
+
+
+
+
+
+
+
+
+
+
+l5: mov si,OFFSET Data2
+    l22:mov al,cs:[si]
+
+    cmp al,00H
+    JE l5
+    out 1bh, al
+
+    mov cx, 0008FH
+        l33: NOP
+
+mov ah,00000001b
+ll17:mov bx,offset mat2
+
+ll22:mov al,cs:[bx]
+out ppib,al
+
+mov al,ah
+out ppic,al
+
+  mov lcx1, 0000fh
+  lllle:
+       dec lcx1
+       cmp lcx1, 0
+       jne lllle
+       je lllledown
+  lllledown:
+
+inc bx
+rol ah,1
+jnc ll22
+
+
+
+            NOP
+            loop l33
+
+    inc si
+    jmp l22
+
+    Data db 0C0h,0F9h,0A4h,0B0h,099h,092h,082h,0F8h,080h,090h,00h
+    Data2 db 01h,02h,04h,08h,00h
+    mat db 11111110b,11101110b,11011110b,10111110b,00000000b,11111110b,11111110b,11111110b
+    mat2 db 11111111b,11011110b,10111100b,10111010b,10110110b,11001110b,11111110b,11111111b
+
+code ends
+end
+
+
+
+
+
+
+
+
+
+
+
+

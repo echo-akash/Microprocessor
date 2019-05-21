@@ -1,0 +1,45 @@
+Code Segment
+ASSUME CS: Code, DS: Code
+ORG 1000H
+MOV AL, 80H
+OUT 1FH, AL
+
+mov al,0ffh;clear 7 segment
+out 19h,al
+
+X:
+mov si,offset data
+
+
+
+mov cx,04h
+L:
+
+MOV AL, cs:[si]
+cmp al,00H
+je X
+OUT 1BH, AL
+CALL DELAY
+
+MOV AL, 00H
+OUT 1BH, AL
+CALL DELAY
+inc si
+loop L
+
+
+
+DELAY:
+mov cx,0ffffh
+L2:
+NOP
+NOP
+NOP
+loop L2
+ret
+
+
+data db 01H,04H,02H,08H,00H
+
+Code Ends
+END

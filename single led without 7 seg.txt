@@ -1,0 +1,30 @@
+Code Segment
+ASSUME CS: Code, DS: Code
+ORG 1000H
+MOV AL, 80H ;command byte set
+OUT 1FH, AL
+
+mov al,0ffh ;to clear the 7 segment 
+out 19h,al
+
+L: MOV AL, 02H
+OUT 1BH, AL
+CALL DELAY
+
+MOV AL, 00H
+OUT 1BH, AL
+CALL DELAY
+JMP L
+
+DELAY:
+mov cx,0ffffh
+L2:
+NOP
+NOP
+NOP
+loop L2
+ret
+
+
+Code Ends
+END
