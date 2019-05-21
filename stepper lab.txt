@@ -1,0 +1,29 @@
+
+code segment
+
+assume cs:code,ds:code,es:code,ss:code
+org 1000h
+
+mov al,080h
+out 01fh,al
+mov al,00010001b
+
+l1:
+   out 01bh,al
+   call timer
+   rol al,1
+   jmp l1
+
+       timer:
+             mov cx,0ffffh
+             delay:
+                   NOP
+                   NOP
+                   NOP
+                   loop delay
+
+       ret
+
+
+code ends
+end

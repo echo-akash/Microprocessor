@@ -1,0 +1,129 @@
+code segment
+assume cs:code,ds:code,ss:code,es:code
+
+key equ 01h
+key_f equ 03h
+ir_wr equ 00h
+st_rd equ 02h
+dr_wr equ 04h
+
+org 1000h
+
+call allclr
+mov ah,080h
+call cursor1
+
+  
+mov si,offset ab
+call string
+
+l1:
+
+   call ln2c
+   call cursor1
+   ;mov si,offset ab
+   ;call string
+   
+   call scan
+   mov dl,al
+   call decimal
+   jmp l1
+   
+x:
+call delay
+
+ab db 'KEYCODE:',00h
+allclr:
+mov ah,01h
+jmp out
+
+cursor1:
+
+
+out:
+call busy
+mov al,ah
+mov dx,00h
+out dx,al
+ret
+
+
+ln2c:
+     mov ah, 0c0h
+ret
+
+scan:
+in al, key_f
+test al, 10000000b
+jnz scan
+in al, key
+and al, 00011111b
+out key, al
+ret
+
+decimal:
+mov cx, 2
+ddd:
+
+ror dl, 1
+ror dl, 1
+ror dl, 1
+ror dl, 1
+
+mov ah, dl
+and ah, 0fh
+cmp ah, 10
+jl add48
+
+add ah, 55
+call busy2
+jmp down
+
+     add48:
+         add ah, 48
+         call busy2
+
+down:
+loop ddd
+
+
+busy2:
+in al,02h
+
+    test al,80h
+    jnz busy
+
+    mov al, ah
+    out 04h, al
+    ret
+
+
+busy:
+mov dx,02h
+    in al,dx
+    test al,80h
+    jnz busy
+    ret
+
+    string:
+    mov ah,cs:[si]
+    cmp ah,00h
+    je return
+
+    call busy
+    mov al,ah
+    mov dx,04h
+    out dx,al
+    inc si
+    jmp string
+    return:
+    ret
+
+    delay:
+    mov cx,0ffffh
+    f: dec cx
+    jnz f
+    jmp x
+
+    code ends
+    end

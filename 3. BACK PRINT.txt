@@ -1,0 +1,73 @@
+//BACK PRINT
+
+
+
+code segment
+assume cs:code, ds:code, es:code, ss:code
+ORG 1000H
+
+mov dh,0cfh
+
+call clear
+call cursor
+call string
+
+
+clear:
+mov ah,1
+jmp set
+
+
+cursor:
+mov ah,dh
+jmp set
+
+
+set:
+call busy
+mov al,ah
+out 00h,al
+ret
+
+busy:
+in al,02h
+test al,80h
+jnz busy
+ret
+
+scan:
+in al,03h
+test al,80h
+jnz scan
+in al,01h
+and al,1fh
+out 01h,al
+ret
+
+conversion:
+mov bl,al
+and bl,0fh
+cmp bl,9
+jg A
+add bl,48
+jmp B
+A:
+add bl,55
+B:
+call busy
+mov al,bl
+out 04h,al
+dec dh
+call cursor
+ret
+
+string:
+call scan
+call conversion
+jmp string
+
+
+
+
+CODE ENDS
+END

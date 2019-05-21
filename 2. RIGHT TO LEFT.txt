@@ -1,0 +1,67 @@
+//FROM RIGHT TO LEFT
+//Same explanation of "Right To Left"
+//diff is cursor er initial position = 0cfh & protibar string print er por cursor er value decrement korte hoy
+
+
+code segment
+assume cs:code, ds:code, es:code, ss:code
+ORG 1000H
+
+mov dh,0cfh
+
+call clear
+call cursor
+mov si,offset data
+call string
+
+data db "HI ASIF",00h
+
+clear:
+mov ah,1
+jmp set
+
+
+cursor:
+mov ah,dh
+mov si,offset data
+jmp set
+
+
+set:
+call busy
+mov al,ah
+out 00h,al
+ret
+
+busy:
+in al,02h
+test al,80h
+jnz busy
+ret
+
+string:
+mov bh,cs:[si]
+cmp bh,0
+je delay
+
+call busy
+mov al,bh
+out 04h,al
+inc si
+jmp string
+
+delay:
+mov cx,0ffffh
+l:
+nop
+nop
+nop
+loop l
+dec dh
+call clear
+call cursor
+call string
+
+
+CODE ENDS
+END

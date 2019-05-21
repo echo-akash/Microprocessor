@@ -1,0 +1,87 @@
+//LEFT TO RIGHT ANIMATION; It is done in 2nd row of LCD. 1st row te korte gale jhamela hoy
+/*
+Idea is: 
+1) prothombar 2nd Row er akebare 1st position theke "HI ASIF" likha print kore kichukhon delay hobe
+2) Then screen clear 2nd position theke "HI ASIF" print kore delay dibe
+3) Evabe cholte thakle bisoy ta animated form e dekhabe:
+
+HI ASIF
+ HI ASIF
+  HI ASIF
+   HI ASIF
+    HI ASIF
+     HI ASIF......
+4) So 2nd line er 1st position er jonno cursor value = 02H; SO First time string print hobe
+   0C0H position theke ba 2nd line er first position theke
+5) THEN ekbar "HI ASIF" print er por kichukhon delay diye screen clear kore felbo.
+   NOW 2nd position e cursor value= 0C1H, so ebar 1 increment kore cursor set korte hobe.
+   summary is: protibar string print er por cursor position ke 1 increment kore string ta print dite hobe
+   This is done by dh. protibar string print er por dh++ kora hoy & seta diye cursor set kore sei position theke string print dewa hoy 
+*/
+
+
+
+
+
+code segment
+assume cs:code, ds:code, es:code, ss:code
+ORG 1000H
+
+mov dh,0c0h
+
+call clear
+call cursor
+mov si,offset data
+call string
+
+data db "HI ASIF",00h
+
+clear:
+mov ah,1
+jmp set
+
+
+cursor:
+mov ah,dh
+mov si,offset data
+jmp set
+
+
+set:
+call busy
+mov al,ah
+out 00h,al
+ret
+
+busy:
+in al,02h
+test al,80h
+jnz busy
+ret
+
+string:
+mov bh,cs:[si]
+cmp bh,0
+je delay
+
+call busy
+mov al,bh
+out 04h,al
+inc si
+jmp string
+
+delay:
+mov cx,0ffffh
+l:
+nop
+nop
+nop
+loop l
+inc dh
+call clear
+call cursor
+call string
+
+
+CODE ENDS
+END
