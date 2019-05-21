@@ -1,0 +1,129 @@
+code segment
+assume cs:code, es:code, ds:code,ss:code
+
+
+ORG 1000H
+
+
+SHURU:
+
+CALL ALLCLR
+CALL CURSR1
+
+MOV SI,OFFSET AB
+CALL STRING
+
+LEVEL:
+      MOV VAR,2
+      CALL CURSR2
+      CALL SCAN
+      MOV DL,AL
+      MOV VAR2,AL
+      CALL DECIMAL
+      JMP LEVEL
+;X:
+;CALL DELAY
+
+ALLCLR:
+MOV AH,00000001B
+JMP OUT
+
+CURSR1:
+MOV AH,80H
+JMP OUT
+
+CURSR2:
+MOV AH,0C0H
+
+OUT:
+CALL BUSY
+MOV AL,AH
+MOV DX,00H
+OUT DX,AL
+RET
+
+BUSY:
+
+IN AL,02H
+TEST AL,80H
+JNZ BUSY
+RET
+
+STRING:
+MOV AH,CS:[SI]
+CMP AH,00H
+JE LEV
+
+CALL BUSY
+
+MOV AL,AH
+MOV DX,04H
+OUT DX,AL
+INC SI
+JMP STRING
+
+LEV:
+RET
+
+
+
+SCAN:
+     IN AL,03H
+     TEST AL,10000000B
+     JNZ SCAN
+     IN AL,01H
+     AND AL,00011111B
+     OUT 01H,AL
+     RET
+     
+DECIMAL:
+
+
+
+        MOV DL,VAR2
+        ROR DL,1
+        ROR DL,1
+        ROR DL,1
+        ROR DL,1
+        MOV VAR2,DL
+
+
+        MOV AH,DL
+        AND AH,0FH
+        CMP AH,10
+        JL NUMBER
+        JMP CHARACTER
+
+
+NUMBER: ADD AH,48
+       CALL BUSY
+
+       MOV AL,AH
+       OUT 04H,AL
+       SUB VAR,1
+       CMP VAR,0
+       JE RETURN
+       JMP DECIMAL
+       
+CHARACTER:
+ADD AH,55
+       CALL BUSY
+
+       MOV AL,AH
+       OUT 04H,AL
+        SUB VAR,1
+       CMP VAR,0
+       JE RETURN
+       JMP DECIMAL
+
+       
+RETURN:
+RET
+
+
+AB DB 'Keycode:',00H
+VAR DB 2
+VAR2 DB 0
+
+code ends
+end
